@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en" is-fullscreen with-selection-styled>
+<meta charset="utf-8">
+<title>Playground · Adam Schwartz</title>
+<meta name="viewport" content="initial-scale=1, width=device-width">
+
+<script src="https://unpkg.com/focus-visible-polyfill"></script>
+<link rel="stylesheet" href="https://ui.components.workers.dev/?
+   --font-family=Avenir, sans-serif
+  &--color-rgb=29, 30, 60
+  &--background-color-rgb=239, 239, 239
+  &--accent-color-rgb=74, 76, 105
+">
+
+<style>
+  * {
+    box-sizing: inherit;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    font-family: system-ui, sans-serif;
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  .Playground--editor,
+  .Playground--preview {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 50%;
+  }
+
+  .Playground--editor {
+    font-size: inherit;
+    font-family: var(--monospace-font-family);
+    line-height: 1.4;
+    color: inherit;
+    left: 0;
+    padding: 1em;
+    background: transparent;
+    border: 0;
+    resize: none;
+  }
+
+  .Playground--editor::selection {
+    background: rgba(var(--color-rgb), .2);
+    color: var(--color);
+  }
+
+  .Playground--editor:focus {
+    outline: none;
+  }
+
+  .Playground--preview {
+    right: 0;
+    background: #fff;
+  }
+
+  .Playground--preview iframe {
+    position: absolute;
+    border: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+
+  .Playground--starters {
+    position: absolute;
+    top: 0;
+    right: 50%;
+    z-index: 1;
+  }
+
+  .Playground--starters-dropdown {
+    position: relative;
+  }
+
+  .Playground--starters-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 1.25em;
+    width: .5em;
+    padding: 1em;
+    --focus-box-shadow: 0 0 0 var(--focus-size) var(--focus-color);
+    --padding-box-shadow: inset 0 0 0 .25em var(--background-color);
+    box-shadow: var(--padding-box-shadow), var(--focus-box-shadow);
+    cursor: pointer;
+    border-radius: .5em;
+  }
+
+  @media (hover: hover) {
+    .Playground--starters-button:hover {
+      background: rgba(var(--color-rgb), .1);
+    }
+  }
+
+  .Playground--starters-button[is-focus-visible] {
+    background: rgba(var(--color-rgb), .1);
+  }
+
+  [js-focus-visible-polyfill-available] .Playground--starters-button:focus {
+    outline: none;
+  }
+
+  .Playground--starters-button:not([is-focus-visible]) {
+    --focus-size: 0em;
+  }
+
+  .Playground--starters-button::-webkit-details-marker {
+    display: none;
+  }
+
+  .Playground--starters-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .Playground--starters-menu {
+    position: absolute;
+    font-size: 1.25em;
+    top: 2.75rem;
+    right: .125em;
+    text-align: right;
+    background: #fff;
+    box-shadow: 0 .1em .3em rgba(var(--color-rgb), .3);
+    border-radius: .25em;
+    padding: .425em 0;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+
+  .Playground--starters-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .Playground--starters-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    padding: 0 .7em 0 .8em;
+    box-shadow: 0 0 0 var(--focus-size) var(--focus-color);
+  }
+
+  [js-focus-visible-polyfill-available] .Playground--starters-link:focus {
+    outline: none;
+  }
+
+  .Playground--starters-link:not([is-focus-visible]) {
+    --focus-size: 0em;
+  }
+
+  @media (hover: hover) {
+    .Playground--starters-link:hover {
+      background: rgba(var(--color-rgb), .1);
+    }
+  }
+
+  .Playground--starters-link:focus {
+    background: rgba(var(--color-rgb), .1);
+  }
+
+  @media (max-width: 768px) {
+    .Playground--editor,
+    .Playground--preview {
+      left: 0;
+      width: 100%;
+      height: 50%;
+    }
+
+    .Playground--editor {
+      top: 50%;
+    }
+
+    .Playground--preview {
+      top: 0;
+    }
+
+    .Playground--starters {
+      top: 50%;
+      right: 0;
+    }
+  }
+</style>
+
+<textarea class="Playground--editor" spellcheck="false" autofocus data-js-input></textarea>
+
+<div class="Playground--starters">
+  <details class="Playground--starters-dropdown" data-starters>
+    <summary class="Playground--starters-button">
+      <svg class="Playground--starters-icon" viewBox="0 0 4 16" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" fill="currentColor"><path d="M2,2v0m0,6v0m0,6v0z"/></svg>
+    </summary>
+
+    <div class="Playground--starters-menu">
+      <ul class="Playground--starters-list" data-starters-list></ul>
+    </div>
+  </details>
+</div>
+
+<div class="Playground--preview" data-js-playground></div>
+
+<script>
+  const params = new URLSearchParams(location.search)
+  const inputEl = document.querySelector("[data-js-input]")
+  const startersEl = document.querySelector("[data-starters]")
+  const startersListEl = document.querySelector("[data-starters-list]")
+  const playgroundEl = document.querySelector("[data-js-playground]")
+
+  const starters = {
+    new: {
+      hidden: true,
+      value: "",
+    },
+    empty: {
+      hidden: true,
+      value: "",
+    },
+    blank: {
+      title: "Blank",
+      value: "",
+    },
+    button: {
+      title: "Button",
+      value: `${"<"}script src="https://unpkg.com/focus-visible-polyfill">${"<"}/script>\n<link rel="stylesheet" href="https://ui.components.workers.dev/\n  ?--font-family=Avenir, sans-serif\n  &--color-rgb=29, 30, 60\n  &--accent-color-rgb=74, 76, 105\n">\n\n<button id=b class="Button Button-is-bordered">Button</button>\n\n<style>\n  * {\n    margin: 0;\n  }\n  \n  html {\n    padding: 1em;\n    font-size: 18px;\n  }\n</style>\n\n${"<"}script>\n  b.addEventListener("click", () => alert("Click"))\n${"<"}/script>\n`,
+    },
+    animation: {
+      title: "Animation",
+      value: "<style>\n  body {\n    margin: 0;\n    height: 100%;\n    display: grid;\n    place-content: center;\n    text-align: center;\n  }\n\n  div {\n    height: 33.33vmin;\n    width: 33.33vmin;\n    background: currentColor;\n    animation: spin 10s linear infinite;\n  }\n\n  @keyframes spin {\n    to { transform: rotate(360deg) } \n  }\n</style>\n\n<div></div>",
+    },
+    welcome: {
+      title: "Welcome",
+      value: `<style>\n  * { margin: 0 }\n\n  body {\n    font-family: system-ui, sans-serif;\n    display: grid;\n    place-content: center;\n    text-align: center;\n    height: 100%;\n  }\n\n  h1 {\n    font-size: 15vw;\n    font-weight: 900;\n    letter-spacing: -.03em;\n    padding-right: .0625em;\n    padding-bottom: 6.5vh;\n  }\n</style>\n\n<h1 id=h1 data-text=Playground></h1>\n\n${"<"}script>\n  text = h1.getAttribute("data-text")\n  i = setInterval(() => {\n    h1.textContent = text.slice(0, h1.textContent.length + 1)\n    if (h1.textContent === text) clearInterval(i)\n  }, 200)\n${"<"}/script>\n`,
+    }
+  }
+
+  Object.entries(starters).forEach(([key, starter]) => {
+    if (starter.hidden) return
+
+    const li = document.createElement("li")
+    li.className = "Playground--starters-item"
+
+    const a = document.createElement("a")
+    a.className = "Playground--starters-link"
+    a.textContent = starter.title
+    a.href = `?starter=${key}`
+
+    a.addEventListener("click", event => {
+      event.preventDefault()
+      inputEl.value = starters[key].value
+      update()
+      startersEl.open = false
+    })
+
+    li.appendChild(a)
+    startersListEl.appendChild(li)
+  })
+
+  if (params.get("starter") in starters) {
+    inputEl.value = starters[params.get("starter")].value
+  } else if (params.get("v")) {
+    inputEl.value = atob(decodeURIComponent(params.get("v")))
+  } else {
+    inputEl.value = starters.welcome.value
+  }
+
+  document.body.addEventListener("click", event => {
+    if (startersEl.contains(event.target)) return
+    startersEl.open = false
+  })
+
+  const initIframeClickTracking = iframeEl => {
+    iframeEl.contentDocument.body.addEventListener("click", () => {
+      if (startersEl.open) startersEl.open = false
+    })
+  }
+
+  const getPermalink = () => {
+    const params = "?v=" + encodeURIComponent(btoa(inputEl.value))
+    const l = location
+    return l.protocol + "//" + l.host + l.pathname + params
+  }
+
+  const update = () => {
+    const html = inputEl.value
+    const fragment = document.createRange().createContextualFragment(html)
+    const sandboxEl = document.createElement("iframe")
+    playgroundEl.innerHTML = ""
+    playgroundEl.appendChild(sandboxEl)
+    const body = sandboxEl.contentDocument.body
+    body.innerHTML = ""
+    body.appendChild(fragment)
+    initIframeClickTracking(sandboxEl)
+    history.replaceState({}, "", getPermalink())
+  }
+
+  inputEl.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+      event.preventDefault()
+      inputEl.blur()
+    }
+
+    const spaces = "  "
+    const start = this.selectionStart
+    const end = this.selectionEnd
+
+    if (event.key === "Tab") {
+      event.preventDefault()
+      this.value = this.value.substring(0, start) + spaces + this.value.substring(end)
+      this.selectionStart = this.selectionEnd = start + spaces.length
+    }
+
+    if (event.key === "Backspace" && start === end && start >= spaces.length) {
+      if (this.value.substring(start - spaces.length, start) === spaces) {
+        event.preventDefault()
+        this.value = this.value.substring(0, start - spaces.length) + this.value.substring(start)
+        this.selectionStart = this.selectionEnd = start - spaces.length
+      }
+    }
+  })
+
+  inputEl.addEventListener("input", update)
+  update()
+</script>
