@@ -94,22 +94,22 @@
     right: 0;
     height: 1.25em;
     width: .5em;
-    padding: 1em;
-    --focus-box-shadow: 0 0 0 var(--focus-size) var(--focus-color);
-    --padding-box-shadow: inset 0 0 0 .25em var(--background-color);
-    box-shadow: var(--padding-box-shadow), var(--focus-box-shadow);
+    padding: .75em;
+    border: .25em solid transparent;
+    background-clip: padding-box;
+    box-shadow: 0 0 0 var(--focus-size) var(--focus-color);
     cursor: pointer;
     border-radius: .5em;
   }
 
   @media (hover: hover) {
     .Playground--starters-button:hover {
-      background: rgba(var(--color-rgb), .1);
+      background-color: rgba(var(--color-rgb), .1);
     }
   }
 
   .Playground--starters-button[is-focus-visible] {
-    background: rgba(var(--color-rgb), .1);
+    background-color: rgba(var(--color-rgb), .1);
   }
 
   [js-focus-visible-polyfill-available] .Playground--starters-button:focus {
