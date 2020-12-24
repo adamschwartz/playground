@@ -135,7 +135,6 @@
     font-size: 1.25em;
     top: 2.75rem;
     right: .125em;
-    text-align: right;
     background: #fff;
     box-shadow: 0 .1em .3em rgba(var(--color-rgb), .3);
     border-radius: .25em;
@@ -149,6 +148,12 @@
     list-style: none;
     margin: 0;
     padding: 0;
+  }
+
+  .Playground--starters-separator {
+    height: 1px;
+    margin: .425em 0;
+    background: rgba(var(--color-rgb), .2);
   }
 
   .Playground--starters-link {
@@ -228,13 +233,20 @@
       hidden: true,
       value: "",
     },
-    empty: {
+    blank: {
       hidden: true,
       value: "",
     },
-    blank: {
-      title: "Blank",
+    empty: {
+      title: "Empty",
       value: "",
+    },
+    seperator: {
+      seperator: true
+    },
+    animation: {
+      title: "Animation",
+      value: "<style>\n  body {\n    margin: 0;\n    height: 100%;\n    display: grid;\n    place-content: center;\n    text-align: center;\n  }\n\n  div {\n    height: 33.33vmin;\n    width: 33.33vmin;\n    background: currentColor;\n    animation: spin 10s linear infinite;\n  }\n\n  @keyframes spin {\n    to { transform: rotate(360deg) } \n  }\n</style>\n\n<div></div>",
     },
     button: {
       title: "Button",
@@ -244,10 +256,6 @@
       title: "Dot",
       value: `${"<"}script src="https://adamschwartz.co/labs/dot/dot.js">${"<"}/script>\n\n<div data-dot style="color: #000"></div>\n\n${"<"}script>\n  const SIZE = 50\n\n  const dot = new Dot({\n    node: document.querySelector('[data-dot]'),\n    size: SIZE\n  })\n\n  dot.jumpTo({\n    x: (window.innerWidth - SIZE) / 2,\n    y: (window.innerHeight - SIZE) / 2\n  }, true)\n${"<"}/script>`
     },
-    animation: {
-      title: "Animation",
-      value: "<style>\n  body {\n    margin: 0;\n    height: 100%;\n    display: grid;\n    place-content: center;\n    text-align: center;\n  }\n\n  div {\n    height: 33.33vmin;\n    width: 33.33vmin;\n    background: currentColor;\n    animation: spin 10s linear infinite;\n  }\n\n  @keyframes spin {\n    to { transform: rotate(360deg) } \n  }\n</style>\n\n<div></div>",
-    },
     welcome: {
       title: "Welcome",
       value: `<style>\n  * { margin: 0 }\n\n  body {\n    font-family: system-ui, sans-serif;\n    display: grid;\n    place-content: center;\n    text-align: center;\n    height: 100%;\n  }\n\n  h1 {\n    font-size: 15vw;\n    font-weight: 900;\n    letter-spacing: -.03em;\n    padding-right: .0625em;\n    padding-bottom: 6.5vh;\n  }\n</style>\n\n<h1 id=h1 data-text=Playground></h1>\n\n${"<"}script>\n  text = h1.getAttribute("data-text")\n  i = setInterval(() => {\n    h1.textContent = text.slice(0, h1.textContent.length + 1)\n    if (h1.textContent === text) clearInterval(i)\n  }, 200)\n${"<"}/script>\n`,
@@ -256,6 +264,13 @@
 
   Object.entries(starters).forEach(([key, starter]) => {
     if (starter.hidden) return
+
+    if (starter.seperator) {
+      const li = document.createElement("li")
+      li.className = "Playground--starters-separator"
+      startersListEl.appendChild(li)
+      return
+    }
 
     const li = document.createElement("li")
     li.className = "Playground--starters-item"
