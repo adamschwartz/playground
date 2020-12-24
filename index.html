@@ -248,6 +248,10 @@
       title: "Animation",
       value: "<style>\n  body {\n    margin: 0;\n    height: 100%;\n    display: grid;\n    place-content: center;\n    text-align: center;\n  }\n\n  div {\n    height: 33.33vmin;\n    width: 33.33vmin;\n    background: currentColor;\n    animation: spin 10s linear infinite;\n  }\n\n  @keyframes spin {\n    to { transform: rotate(360deg) } \n  }\n</style>\n\n<div></div>",
     },
+    animejs: {
+      title: "Anime.js",
+      value: `${"<"}script src="//unpkg.com/animejs@2.0.2">${"<"}/script>\n\n<style>\n  body {\n    font-family: system-ui, sans-serif;\n    display: grid;\n    place-content: center;\n    text-align: center;\n    height: 100%;\n  }\n\n  div {\n    width: 100px;\n    height: 100px;\n    background: currentColor;\n    border-radius: 25px;\n  }\n</style>\n\n<section>\n  <div></div>\n</section>\n\n${"<"}script>\nanime.timeline({ loop: true })\n  .add({\n    targets: "div",\n    duration: 1200,\n    height: 50,\n    width: 400,\n    elasticity: 200,\n    borderRadius: 25,\n    delay: 1000\n  })\n  .add({\n    targets: "div",\n    duration: 1800,\n    height: 200,\n    width: 200,\n    borderRadius: 100,\n    elasticity: 300\n  })\n  .add({\n    targets: "section",\n    scale: 2,\n    easing: "easeOutSine",\n    duration: 700\n  })\n  .add({\n    targets: "section",\n    scale: 1,\n    easing: "easeInSine",\n    duration: 350\n  })\n  .add({\n    targets: "div",\n    height: 100,\n    width: 100,\n    borderRadius: 25\n  })\n${"<"}/script>`,
+    },
     button: {
       title: "Button",
       value: `${"<"}script src="https://unpkg.com/focus-visible-polyfill">${"<"}/script>\n<link rel="stylesheet" href="https://ui.components.workers.dev/\n  ?--font-family=Avenir, sans-serif\n  &--color-rgb=29, 30, 60\n  &--accent-color-rgb=74, 76, 105\n">\n\n<button id=b class="Button Button-is-bordered">Button</button>\n\n<style>\n  * {\n    margin: 0;\n  }\n  \n  html {\n    padding: 1em;\n    font-size: 18px;\n  }\n</style>\n\n${"<"}script>\n  b.addEventListener("click", () => alert("Click"))\n${"<"}/script>\n`,
