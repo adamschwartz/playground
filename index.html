@@ -240,6 +240,10 @@
       title: "Button",
       value: `${"<"}script src="https://unpkg.com/focus-visible-polyfill">${"<"}/script>\n<link rel="stylesheet" href="https://ui.components.workers.dev/\n  ?--font-family=Avenir, sans-serif\n  &--color-rgb=29, 30, 60\n  &--accent-color-rgb=74, 76, 105\n">\n\n<button id=b class="Button Button-is-bordered">Button</button>\n\n<style>\n  * {\n    margin: 0;\n  }\n  \n  html {\n    padding: 1em;\n    font-size: 18px;\n  }\n</style>\n\n${"<"}script>\n  b.addEventListener("click", () => alert("Click"))\n${"<"}/script>\n`,
     },
+    dot: {
+      title: "Dot",
+      value: `${"<"}script src="https://adamschwartz.co/labs/dot/dot.js">${"<"}/script>\n\n<div data-dot style="color: #000"></div>\n\n${"<"}script>\n  const SIZE = 50\n\n  const dot = new Dot({\n    node: document.querySelector('[data-dot]'),\n    size: SIZE\n  })\n\n  dot.jumpTo({\n    x: (window.innerWidth - SIZE) / 2,\n    y: (window.innerHeight - SIZE) / 2\n  }, true)\n${"<"}/script>`
+    },
     animation: {
       title: "Animation",
       value: "<style>\n  body {\n    margin: 0;\n    height: 100%;\n    display: grid;\n    place-content: center;\n    text-align: center;\n  }\n\n  div {\n    height: 33.33vmin;\n    width: 33.33vmin;\n    background: currentColor;\n    animation: spin 10s linear infinite;\n  }\n\n  @keyframes spin {\n    to { transform: rotate(360deg) } \n  }\n</style>\n\n<div></div>",
