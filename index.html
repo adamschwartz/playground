@@ -297,15 +297,75 @@
     return l.protocol + "//" + l.host + l.pathname + params
   }
 
+  const validHeadElements = ["meta", "link", "style", "script", "base"]
+  const extractHeadBody = fragment => {
+    const head = []
+    const body = []
+
+    let enteredBody = false
+    fragment.childNodes.forEach(node => {
+      if (node.tagName && !validHeadElements.includes(node.tagName.toLowerCase())) {
+        enteredBody = true
+      }
+
+      if (!enteredBody) {
+        if (node.nodeType === 3 && node.data.match(/^\s*$/m)) {} else {
+          head.push(node)
+        }
+      } else {
+        body.push(node)
+      }
+    })
+
+    return [head, body]
+  }
+
+  const loadHeadElements = (doc, head, newHead, callback) => {
+    if (newHead.length) {
+      const el = newHead[0]
+
+      if (el.tagName && el.tagName.toLowerCase() === "script" && el.getAttribute("src")) {
+        loadScript(doc, el, () => {
+          newHead.shift()
+          loadHeadElements(doc, head, newHead, callback)
+        })
+      } else {
+        head.appendChild(el)
+        newHead.shift()
+        loadHeadElements(doc, head, newHead, callback)
+      }
+    } else {
+      callback()
+    }
+  }
+
+  const loadScript = (doc, script, callback) => {
+    const el = doc.createElement("script")
+    el.setAttribute("src", script.getAttribute("src"))
+    el.onload = () => callback()
+    doc.head.appendChild(el)
+  }
+
   const update = () => {
     const html = inputEl.value
-    const fragment = document.createRange().createContextualFragment(html)
-    const sandboxEl = document.createElement("iframe")
+
     playgroundEl.innerHTML = ""
+
+    const sandboxEl = document.createElement("iframe")
     playgroundEl.appendChild(sandboxEl)
+    const sandboxDocument = sandboxEl.contentDocument
+    const head = sandboxEl.contentDocument.head
     const body = sandboxEl.contentDocument.body
-    body.innerHTML = ""
-    body.appendChild(fragment)
+
+    const fragment = sandboxDocument.createRange().createContextualFragment(html)
+    const [newHead, newBody] = extractHeadBody(fragment)
+
+    head.innerHTML = ""
+    loadHeadElements(sandboxDocument, head, newHead, () => {
+      body.innerHTML = ""
+      newBody.forEach(el => body.appendChild(el))
+    })
+
     initIframeClickTracking(sandboxEl)
     history.replaceState({}, "", getPermalink())
   }
