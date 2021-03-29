@@ -120,7 +120,11 @@
     --focus-size: 0em;
   }
 
-  .Playground--starters-button::-webkit-details-marker {
+  .Playground--starters-button::-webkit-details-marker,
+  .Playground--starters-button::marker {
+    content: "";
+    position: absolute;
+    opacity: 0;
     display: none;
   }
 
