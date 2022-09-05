@@ -477,17 +477,8 @@
   let lastValue
 
   const pushToHistory = () => {
-    const value = inputEl.value
-
-    if (lastValue !== value) {
-      lastValue = value
-
-      textHistory.push({
-        value,
-        selectionStart: inputEl.selectionStart,
-        selectionEnd: inputEl.selectionEnd,
-      })
-    }
+    const { value, selectionStart, selectionEnd } = textarea
+    textHistory.push({ value, selectionStart, selectionEnd })
   }
 
   const applyHistoryItem = item => {
@@ -777,8 +768,12 @@
     }
 
     // Backspace indentation spaces
-    if (event.key === 'Backspace' && start >= spaces.length && start === end) {
-      if (value.substring(start - spaces.length, start) === spaces) {
+    if (event.key === 'Backspace') {
+
+      // Save history before backspace to capture selection change
+      pushToHistory()
+
+      if (start >= spaces.length && start === end && value.substring(start - spaces.length, start) === spaces) {
         event.preventDefault()
         this.value = value.substring(0, start - spaces.length) + value.substring(start)
         this.selectionStart = this.selectionEnd = start - spaces.length
