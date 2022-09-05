@@ -268,7 +268,7 @@
   }
 </style>
 
-<textarea class="Playground--editor" spellcheck="false" autofocus data-js-input></textarea>
+<textarea class="Playground--editor" spellcheck="false" data-js-input></textarea>
 
 <div class="Playground--starters">
   <details class="Playground--starters-dropdown" data-starters>
@@ -561,10 +561,6 @@
     doc.head.appendChild(el)
   }
 
-  const updateURL = () => {
-    history.replaceState({}, '', getPermalink())
-  }
-
   const update = () => {
     const html = inputEl.value
 
@@ -596,7 +592,7 @@
     })
 
     initIframeClickTracking(sandboxEl)
-    updateURL()
+    history.replaceState({}, '', getPermalink())
   }
 
   inputEl.addEventListener('keydown', function(event) {
