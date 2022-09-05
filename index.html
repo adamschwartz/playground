@@ -1,15 +1,8 @@
 <!doctype html>
-<html lang="en" is-fullscreen with-selection-styled>
+<html lang="en">
 <meta charset="utf-8">
 <title>Playground · Adam Schwartz</title>
 <meta name="viewport" content="initial-scale=1, width=device-width">
-
-<link rel="stylesheet" href="https://ui.components.workers.dev/?
-   --font-family=Avenir, sans-serif
-  &--color-rgb=29, 30, 60
-  &--background-color-rgb=239, 239, 239
-  &--accent-color-rgb=74, 76, 105
-">
 
 <script>
   (()=>{var d=window.matchMedia('(prefers-color-scheme:dark)'),
@@ -22,23 +15,65 @@
     box-sizing: inherit;
   }
 
+  html {
+    --color-rgb: 29, 30, 60;
+    --background-color-rgb: 239, 239, 239;
+    --accent-color-rgb: 74, 76, 105;
+  }
+
   html[data-theme="dark"] {
     --color-rgb: 239, 239, 239;
     --background-color-rgb: 22, 22, 24;
   }
 
   html {
-    -webkit-font-smoothing: antialiased;
-    font-family: system-ui, sans-serif;
-    box-sizing: border-box;
+    --box-sizing: border-box;
+    --font-smoothing: antialiased;
+    --moz-font-smoothing: grayscale;
+    --text-size-adjust: 100%;
+
+    --font-family: system-ui, sans-serif;
+    --monospace-font-family: Menlo, monospace;
+
+    --color: rgb(var(--color-rgb));
+    --background-color: rgb(var(--background-color-rgb));
+    --accent-color: rgb(var(--accent-color-rgb));
+    --focus-color-rgb: var(--accent-color-rgb);
+    --focus-color: rgba(var(--focus-color-rgb), .4);
+    --selection-color: var(--background-color);
+    --selection-background-color: var(--accent-color);
+
+    --font-size: 16px;
+    --line-height: 1.5;
+    --focus-size: .1875em;
+    --border-radius: .1875em;
+    --line-width: .0625em;
   }
 
-  body {
-    margin: 0;
+  html {
+    box-sizing: var(--box-sizing);
+    -webkit-font-smoothing: var(--font-smoothing);
+    -moz-osx-font-smoothing: var(--moz-font-smoothing);
+    -webkit-text-size-adjust: var(--text-size-adjust);
+    text-size-adjust: var(--text-size-adjust);
+
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+
+    color: var(--color);
+    background-color: var(--background-color);
+  }
+
+  ::selection {
+    color: var(--selection-color);
+    background: var(--selection-background-color);
   }
 
   html, body {
     height: 100%;
+    width: 100%;
+    margin: 0;
   }
 
   .Playground--editor,
