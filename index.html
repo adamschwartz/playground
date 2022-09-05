@@ -268,7 +268,7 @@
   }
 </style>
 
-<textarea class="Playground--editor" spellcheck="false" data-js-input></textarea>
+<textarea class="Playground--editor" spellcheck="false" maxlength="5800" data-js-input></textarea>
 
 <div class="Playground--starters">
   <details class="Playground--starters-dropdown" data-starters>
@@ -449,10 +449,18 @@
     startersListEl.appendChild(li)
   })
 
+  const encodedValue = value => {
+    return encodeURIComponent(btoa(unescape(encodeURIComponent(value))))
+  }
+
+  const decodedValue = value => {
+    return decodeURIComponent(escape(atob(decodeURIComponent(value))))
+  }
+
   if (params.get('starter') in starters) {
     inputEl.value = starters[params.get('starter')].value
   } else if (params.get('v')) {
-    inputEl.value = decodeURIComponent(escape(atob(decodeURIComponent(params.get('v')))))
+    inputEl.value = decodedValue(params.get('v'))
   } else {
     inputEl.value = starters.welcome.value
   }
@@ -514,7 +522,7 @@
 
   const getPermalink = () => {
     const value = inputEl.value
-    const params = value === '' ? '' : '?v=' + encodeURIComponent(btoa(unescape(encodeURIComponent(value))))
+    const params = value === '' ? '' : '?v=' + encodedValue(value)
     const l = location
     return l.protocol + '//' + l.host + l.pathname + params
   }
@@ -568,7 +576,28 @@
     doc.head.appendChild(el)
   }
 
+  const ensureMaxLengthNotExceeded = () => {
+    const max = 8000
+    let value = inputEl.value
+
+    while (encodedValue(value).length > max) {
+      value = value.substr(0, value.length - 1)
+    }
+
+    if (inputEl.value === value) return
+
+    const start = inputEl.selectionStart
+    const end = inputEl.selectionEnd
+
+    inputEl.value = value
+
+    inputEl.selectionStart = Math.min(start, value.length)
+    inputEl.selectionEnd = Math.min(end, value.length)
+  }
+
   const update = () => {
+    ensureMaxLengthNotExceeded()
+
     const html = inputEl.value
 
     playgroundEl.innerHTML = ''
