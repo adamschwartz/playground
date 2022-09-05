@@ -12,9 +12,20 @@
   &--accent-color-rgb=74, 76, 105
 ">
 
+<script>
+  (()=>{var d=window.matchMedia('(prefers-color-scheme:dark)'),
+  h=document.documentElement,s=k=>{h.setAttribute('data-theme',
+  d.matches?'dark':'light')};d.addListener(()=>s());s()})()
+</script>
+
 <style>
   * {
     box-sizing: inherit;
+  }
+
+  html[data-theme="dark"] {
+    --color-rgb: 239, 239, 239;
+    --background-color-rgb: 22, 22, 24;
   }
 
   html {
@@ -63,6 +74,11 @@
   .Playground--preview {
     right: 0;
     background: #fff;
+  }
+
+  html[data-theme="dark"] .Playground--preview {
+    background: #000;
+    color: #fff;
   }
 
   .Playground--preview iframe {
@@ -148,6 +164,11 @@
     user-select: none;
   }
 
+  html[data-theme="dark"] .Playground--starters-menu {
+    background: #1f2022;
+    box-shadow: 0 .1em .3em rgba(0, 0, 0, .3);
+  }
+
   .Playground--starters-list {
     list-style: none;
     margin: 0;
@@ -158,6 +179,10 @@
     height: 1px;
     margin: .425em 0;
     background: rgba(var(--color-rgb), .2);
+  }
+
+  html[data-theme="dark"] .Playground--starters-separator {
+    background: rgba(var(--color-rgb), .08);
   }
 
   .Playground--starters-link {
@@ -262,11 +287,11 @@
     },
     dot: {
       title: "Dot",
-      value: `${"<"}script src="https://adamschwartz.co/labs/dot/dot.js">${"<"}/script>\n\n<div data-dot style="color: #000"></div>\n\n${"<"}script>\n  const SIZE = 50\n\n  const dot = new Dot({\n    node: document.querySelector('[data-dot]'),\n    size: SIZE\n  })\n\n  dot.jumpTo({\n    x: (window.innerWidth - SIZE) / 2,\n    y: (window.innerHeight - SIZE) / 2\n  }, true)\n${"<"}/script>`
+      value: `${"<"}script src="https://adamschwartz.co/labs/dot/dot.js">${"<"}/script>\n\n<div data-dot style="color: currentColor"></div>\n\n${"<"}script>\n  const SIZE = 50\n\n  const dot = new Dot({\n    node: document.querySelector('[data-dot]'),\n    size: SIZE\n  })\n\n  dot.jumpTo({\n    x: (window.innerWidth - SIZE) / 2,\n    y: (window.innerHeight - SIZE) / 2\n  }, true)\n${"<"}/script>`
     },
     gradient: {
       title: "Gradient",
-      value: "<style>\n  body {\n    background: linear-gradient(\n      to bottom right,\n      blue,\n      red\n    )\n  }\n</style>"
+      value: "<style>\n  html {\n    background: linear-gradient(\n      to bottom right,\n      blue,\n      red\n    )\n  }\n</style>"
     },
     welcome: {
       title: "Welcome",
@@ -391,7 +416,17 @@
     const fragment = sandboxDocument.createRange().createContextualFragment(html)
     const [newHead, newBody] = extractHeadBody(fragment)
 
-    head.innerHTML = ""
+    head.innerHTML = `
+      <style>
+        @media (prefers-color-scheme: dark) {
+          html {
+            background: #000;
+            color: #fff;
+          }
+        }
+      </style>
+    `
+
     loadHeadElements(sandboxDocument, head, newHead, () => {
       body.innerHTML = ""
       newBody.forEach(el => body.appendChild(el))
