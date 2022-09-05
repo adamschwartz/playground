@@ -285,51 +285,138 @@
 <div class="Playground--preview" data-js-playground></div>
 
 <script>
+  class UndoHistory {
+
+    constructor() {
+      this.init()
+    }
+
+    init() {
+      this.undoStack = []
+      this.redoStack = []
+    }
+
+    clear() {
+      this.init()
+    }
+
+    push(item) {
+      // Enables non-destructive history
+      this.putBackRedos()
+
+      this.undoStack.push(item)
+      return this
+    }
+
+    undo() {
+      if (this.undoStack.length === 1) return this.undoStack[0]
+
+      const item = this.undoStack.pop()
+      if (typeof item === 'undefined') return
+
+      this.redoStack.push(item)
+
+      return this.undoTop()
+    }
+
+    undoTop() {
+      if (!this.undoStack.length) return
+      return this.undoStack[this.undoStack.length - 1]
+    }
+
+    redo() {
+      const item = this.redoStack.pop()
+      if (typeof item === 'undefined') return
+
+      this.undoStack.push(item)
+
+      return item
+    }
+
+    putBackRedos() {
+      if (!this.hasRedos) return
+
+      const reverseRedos = []
+      const undoTop = this.undoTop()
+      if (typeof undoTop !== 'undefined') {
+        reverseRedos.push(undoTop)
+      }
+
+      while (this.redoStack.length) {
+        const item = this.redoStack.pop()
+        reverseRedos.push(item)
+        this.undoStack.push(item)
+      }
+
+      reverseRedos.pop()
+      while (reverseRedos.length) {
+        this.undoStack.push(reverseRedos.pop())
+      }
+    }
+
+    get hasUndos() {
+      return !!this.undoStack.length
+    }
+
+    get hasRedos() {
+      return !!this.redoStack.length
+    }
+
+    get length() {
+      return this.undoStack.length
+    }
+  }
+</script>
+
+<script>
+  const spaces = '  '
   const params = new URLSearchParams(location.search)
-  const inputEl = document.querySelector("[data-js-input]")
-  const startersEl = document.querySelector("[data-starters]")
-  const startersListEl = document.querySelector("[data-starters-list]")
-  const playgroundEl = document.querySelector("[data-js-playground]")
+  const inputEl = document.querySelector('[data-js-input]')
+  const startersEl = document.querySelector('[data-starters]')
+  const startersListEl = document.querySelector('[data-starters-list]')
+  const playgroundEl = document.querySelector('[data-js-playground]')
+
+  const textHistory = new UndoHistory()
 
   const starters = {
     new: {
       hidden: true,
-      value: ""
+      value: ''
     },
     blank: {
       hidden: true,
-      value: ""
+      value: ''
     },
     empty: {
-      title: "Empty",
-      value: ""
+      title: 'Empty',
+      value: ''
     },
     seperator: {
       seperator: true
     },
     animation: {
-      title: "Animation",
-      value: "<style>\n  body {\n    margin: 0;\n    height: 100%;\n    display: grid;\n    place-content: center;\n    text-align: center;\n  }\n\n  div {\n    height: 33.33vmin;\n    width: 33.33vmin;\n    background: currentColor;\n    animation: spin 10s linear infinite;\n  }\n\n  @keyframes spin {\n    to { transform: rotate(360deg) } \n  }\n</style>\n\n<div></div>"
+      title: 'Animation',
+      value: '<style>\n  body {\n    margin: 0;\n    height: 100%;\n    display: grid;\n    place-content: center;\n    text-align: center;\n  }\n\n  div {\n    height: 33.33vmin;\n    width: 33.33vmin;\n    background: currentColor;\n    animation: spin 10s linear infinite;\n  }\n\n  @keyframes spin {\n    to { transform: rotate(360deg) } \n  }\n</style>\n\n<div></div>'
     },
     animejs: {
-      title: "Anime.js",
-      value: `${"<"}script src="//unpkg.com/animejs@2.0.2">${"<"}/script>\n\n<style>\n  body {\n    font-family: system-ui, sans-serif;\n    display: grid;\n    place-content: center;\n    text-align: center;\n    height: 100%;\n  }\n\n  div {\n    width: 100px;\n    height: 100px;\n    background: currentColor;\n    border-radius: 25px;\n  }\n</style>\n\n<section>\n  <div></div>\n</section>\n\n${"<"}script>\nanime.timeline({ loop: true })\n  .add({\n    targets: "div",\n    duration: 1200,\n    height: 50,\n    width: 400,\n    elasticity: 200,\n    borderRadius: 25,\n    delay: 1000\n  })\n  .add({\n    targets: "div",\n    duration: 1800,\n    height: 200,\n    width: 200,\n    borderRadius: 100,\n    elasticity: 300\n  })\n  .add({\n    targets: "section",\n    scale: 2,\n    easing: "easeOutSine",\n    duration: 700\n  })\n  .add({\n    targets: "section",\n    scale: 1,\n    easing: "easeInSine",\n    duration: 350\n  })\n  .add({\n    targets: "div",\n    height: 100,\n    width: 100,\n    borderRadius: 25\n  })\n${"<"}/script>`
+      title: 'Anime.js',
+      value: `${'<'}script src="//unpkg.com/animejs@2.0.2">${'<'}/script>\n\n<style>\n  body {\n    font-family: system-ui, sans-serif;\n    display: grid;\n    place-content: center;\n    text-align: center;\n    height: 100%;\n  }\n\n  div {\n    width: 100px;\n    height: 100px;\n    background: currentColor;\n    border-radius: 25px;\n  }\n</style>\n\n<section>\n  <div></div>\n</section>\n\n${'<'}script>\nanime.timeline({ loop: true })\n  .add({\n    targets: "div",\n    duration: 1200,\n    height: 50,\n    width: 400,\n    elasticity: 200,\n    borderRadius: 25,\n    delay: 1000\n  })\n  .add({\n    targets: "div",\n    duration: 1800,\n    height: 200,\n    width: 200,\n    borderRadius: 100,\n    elasticity: 300\n  })\n  .add({\n    targets: "section",\n    scale: 2,\n    easing: "easeOutSine",\n    duration: 700\n  })\n  .add({\n    targets: "section",\n    scale: 1,\n    easing: "easeInSine",\n    duration: 350\n  })\n  .add({\n    targets: "div",\n    height: 100,\n    width: 100,\n    borderRadius: 25\n  })\n${'<'}/script>`
     },
     button: {
-      title: "Button",
-      value: `${"<"}script src="https://unpkg.com/focus-visible-polyfill">${"<"}/script>\n<link rel="stylesheet" href="https://ui.components.workers.dev/\n  ?--font-family=Avenir, sans-serif\n  &--color-rgb=29, 30, 60\n  &--accent-color-rgb=74, 76, 105\n">\n\n<button id=b class="Button Button-is-bordered">Button</button>\n\n<style>\n  * {\n    margin: 0;\n  }\n  \n  html {\n    padding: 1em;\n    font-size: 18px;\n  }\n</style>\n\n${"<"}script>\n  b.addEventListener("click", () => alert("Click"))\n${"<"}/script>\n`
+      title: 'Button',
+      value: `${'<'}script src="https://unpkg.com/focus-visible-polyfill">${'<'}/script>\n<link rel="stylesheet" href="https://ui.components.workers.dev/\n  ?--font-family=Avenir, sans-serif\n  &--color-rgb=29, 30, 60\n  &--accent-color-rgb=74, 76, 105\n">\n\n<button id=b class="Button Button-is-bordered">Button</button>\n\n<style>\n  * {\n    margin: 0;\n  }\n  \n  html {\n    padding: 1em;\n    font-size: 18px;\n  }\n</style>\n\n${'<'}script>\n  b.addEventListener("click", () => alert("Click"))\n${'<'}/script>\n`
     },
     dot: {
-      title: "Dot",
-      value: `${"<"}script src="https://adamschwartz.co/labs/dot/dot.js">${"<"}/script>\n\n<div data-dot style="color: currentColor"></div>\n\n${"<"}script>\n  const SIZE = 50\n\n  const dot = new Dot({\n    node: document.querySelector('[data-dot]'),\n    size: SIZE\n  })\n\n  dot.jumpTo({\n    x: (window.innerWidth - SIZE) / 2,\n    y: (window.innerHeight - SIZE) / 2\n  }, true)\n${"<"}/script>`
+      title: 'Dot',
+      value: `${'<'}script src="https://adamschwartz.co/labs/dot/dot.js">${'<'}/script>\n\n<div data-dot style="color: currentColor"></div>\n\n${'<'}script>\n  const SIZE = 50\n\n  const dot = new Dot({\n    node: document.querySelector('[data-dot]'),\n    size: SIZE\n  })\n\n  dot.jumpTo({\n    x: (window.innerWidth - SIZE) / 2,\n    y: (window.innerHeight - SIZE) / 2\n  }, true)\n${'<'}/script>`
     },
     gradient: {
-      title: "Gradient",
-      value: "<style>\n  html {\n    background: linear-gradient(\n      to bottom right,\n      blue,\n      red\n    )\n  }\n</style>"
+      title: 'Gradient',
+      value: '<style>\n  html {\n    background: linear-gradient(\n      to bottom right,\n      blue,\n      red\n    )\n  }\n</style>'
     },
     welcome: {
-      title: "Welcome",
-      value: `<style>\n  * { margin: 0 }\n\n  body {\n    font-family: system-ui, sans-serif;\n    display: grid;\n    place-content: center;\n    text-align: center;\n    height: 100%;\n  }\n\n  h1 {\n    font-size: 15vw;\n    font-weight: 900;\n    letter-spacing: -.03em;\n    padding-right: .0625em;\n    padding-bottom: 6.5vh;\n  }\n</style>\n\n<h1 id=h1 data-text=Playground></h1>\n\n${"<"}script>\n  text = h1.getAttribute("data-text")\n  i = setInterval(() => {\n    h1.textContent = text.slice(0, h1.textContent.length + 1)\n    if (h1.textContent === text) clearInterval(i)\n  }, 200)\n${"<"}/script>\n`
+      title: 'Welcome',
+      value: `<style>\n  * { margin: 0 }\n\n  body {\n    font-family: system-ui, sans-serif;\n    display: grid;\n    place-content: center;\n    text-align: center;\n    height: 100%;\n  }\n\n  h1 {\n    font-size: 15vw;\n    font-weight: 900;\n    letter-spacing: -.03em;\n    padding-right: .0625em;\n    padding-bottom: 6.5vh;\n  }\n</style>\n\n<h1 id=h1 data-text=Playground></h1>\n\n${'<'}script>\n  text = h1.getAttribute("data-text")\n  i = setInterval(() => {\n    h1.textContent = text.slice(0, h1.textContent.length + 1)\n    if (h1.textContent === text) clearInterval(i)\n  }, 200)\n${'<'}/script>\n`
     }
   }
 
@@ -337,21 +424,21 @@
     if (starter.hidden) return
 
     if (starter.seperator) {
-      const li = document.createElement("li")
-      li.className = "Playground--starters-separator"
+      const li = document.createElement('li')
+      li.className = 'Playground--starters-separator'
       startersListEl.appendChild(li)
       return
     }
 
-    const li = document.createElement("li")
-    li.className = "Playground--starters-item"
+    const li = document.createElement('li')
+    li.className = 'Playground--starters-item'
 
-    const a = document.createElement("a")
-    a.className = "Playground--starters-link"
+    const a = document.createElement('a')
+    a.className = 'Playground--starters-link'
     a.textContent = starter.title
     a.href = `?starter=${key}`
 
-    a.addEventListener("click", event => {
+    a.addEventListener('click', event => {
       event.preventDefault()
       inputEl.value = starters[key].value
       update()
@@ -362,32 +449,70 @@
     startersListEl.appendChild(li)
   })
 
-  if (params.get("starter") in starters) {
-    inputEl.value = starters[params.get("starter")].value
-  } else if (params.get("v")) {
-    inputEl.value = atob(decodeURIComponent(params.get("v")))
+  if (params.get('starter') in starters) {
+    inputEl.value = starters[params.get('starter')].value
+  } else if (params.get('v')) {
+    inputEl.value = decodeURIComponent(escape(atob(decodeURIComponent(params.get('v')))))
   } else {
     inputEl.value = starters.welcome.value
   }
 
-  document.body.addEventListener("click", event => {
+  // Set caret to the end
+  const end = inputEl.value.length
+  inputEl.setSelectionRange(end, end)
+  inputEl.focus()
+
+  let lastValue
+
+  const pushToHistory = () => {
+    const value = inputEl.value
+
+    if (lastValue !== value) {
+      lastValue = value
+
+      textHistory.push({
+        value,
+        selectionStart: inputEl.selectionStart,
+        selectionEnd: inputEl.selectionEnd,
+      })
+    }
+  }
+
+  const applyHistoryItem = item => {
+    if (typeof item === 'undefined') return
+    inputEl.value = item.value
+    inputEl.selectionStart = item.selectionStart
+    inputEl.selectionEnd = item.selectionEnd
+    update()
+  }
+
+  const undo = () => {
+    applyHistoryItem(textHistory.undo())
+  }
+
+  const redo = () => {
+    applyHistoryItem(textHistory.redo())
+  }
+
+  document.body.addEventListener('click', event => {
     if (startersEl.contains(event.target)) return
     startersEl.open = false
   })
 
   const initIframeClickTracking = iframeEl => {
-    iframeEl.contentDocument.body.addEventListener("click", () => {
+    iframeEl.contentDocument.body.addEventListener('click', () => {
       if (startersEl.open) startersEl.open = false
     })
   }
 
   const getPermalink = () => {
-    const params = "?v=" + encodeURIComponent(btoa(inputEl.value))
+    const value = inputEl.value
+    const params = value === '' ? '' : '?v=' + encodeURIComponent(btoa(unescape(encodeURIComponent(value))))
     const l = location
-    return l.protocol + "//" + l.host + l.pathname + params
+    return l.protocol + '//' + l.host + l.pathname + params
   }
 
-  const validHeadElements = ["meta", "link", "style", "script", "base"]
+  const validHeadElements = ['meta', 'link', 'style', 'script', 'base']
   const extractHeadBody = fragment => {
     const head = []
     const body = []
@@ -414,7 +539,7 @@
     if (newHead.length) {
       const el = newHead[0]
 
-      if (el.tagName && el.tagName.toLowerCase() === "script" && el.getAttribute("src")) {
+      if (el.tagName && el.tagName.toLowerCase() === 'script' && el.getAttribute('src')) {
         loadScript(doc, el, () => {
           newHead.shift()
           loadHeadElements(doc, head, newHead, callback)
@@ -430,18 +555,22 @@
   }
 
   const loadScript = (doc, script, callback) => {
-    const el = doc.createElement("script")
-    el.setAttribute("src", script.getAttribute("src"))
+    const el = doc.createElement('script')
+    el.setAttribute('src', script.getAttribute('src'))
     el.onload = () => callback()
     doc.head.appendChild(el)
+  }
+
+  const updateURL = () => {
+    history.replaceState({}, '', getPermalink())
   }
 
   const update = () => {
     const html = inputEl.value
 
-    playgroundEl.innerHTML = ""
+    playgroundEl.innerHTML = ''
 
-    const sandboxEl = document.createElement("iframe")
+    const sandboxEl = document.createElement('iframe')
     playgroundEl.appendChild(sandboxEl)
     const sandboxDocument = sandboxEl.contentDocument
     const head = sandboxEl.contentDocument.head
@@ -462,39 +591,199 @@
     `
 
     loadHeadElements(sandboxDocument, head, newHead, () => {
-      body.innerHTML = ""
+      body.innerHTML = ''
       newBody.forEach(el => body.appendChild(el))
     })
 
     initIframeClickTracking(sandboxEl)
-    history.replaceState({}, "", getPermalink())
+    updateURL()
   }
 
-  inputEl.addEventListener("keydown", function(event) {
-    if (event.key === "Escape") {
+  inputEl.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
       event.preventDefault()
-      inputEl.blur()
+      this.blur()
+      return
     }
 
-    const spaces = "  "
+    // Undo / redo
+    if (event.keyCode === 90 && event.metaKey) {
+      event.preventDefault()
+      if (!event.shiftKey) {
+        return undo()
+      } else {
+        return redo()
+      }
+    }
+
+    const value = this.value
     const start = this.selectionStart
     const end = this.selectionEnd
+    const beforeSelection = value.substr(0, start)
+    const selectedText = value.substr(start, end - start)
+    const afterSelection = value.substr(end)
+    const lines = value.split('\n')
+    const numLines = lines.length
+    const startLineNum = beforeSelection.split('\n').length
+    const endLineNum = (beforeSelection + selectedText).split('\n').length
 
-    if (event.key === "Tab") {
+    // Duplicate line
+    if (event.keyCode === 68 && event.metaKey && event.altKey) {
       event.preventDefault()
-      this.value = this.value.substring(0, start) + spaces + this.value.substring(end)
-      this.selectionStart = this.selectionEnd = start + spaces.length
+
+      if (start !== end) return
+      const lineNum = startLineNum
+      const lineToDuplicate = lines.slice(lineNum - 1, lineNum)
+
+      const newLines = [
+        ...lines.slice(0, lineNum - 1),
+        ...lineToDuplicate,
+        ...lineToDuplicate,
+        ...lines.slice(lineNum, lines.length),
+      ]
+
+      this.value = newLines.join('\n')
+      this.selectionStart = start + lineToDuplicate[0].length + 1
+      this.selectionEnd = end + lineToDuplicate[0].length + 1
     }
 
-    if (event.key === "Backspace" && start === end && start >= spaces.length) {
-      if (this.value.substring(start - spaces.length, start) === spaces) {
+    // Re-order lines
+    if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && (event.altKey || event.ctrlKey)) {
+      event.preventDefault()
+
+      let selectionStart
+      let selectionEnd
+
+      if (event.key === 'ArrowDown') {
+        if (endLineNum === numLines) return
+
+        const linesBefore = lines.slice(0, startLineNum - 1)
+        const lineThatMoved = lines.slice(endLineNum, endLineNum + 1)
+        const linesSelected = lines.slice(startLineNum - 1, endLineNum)
+        const linesAfter = lines.slice(endLineNum + 1, numLines)
+
+        const newLines = [
+          ...linesBefore,
+          ...lineThatMoved,
+          ...linesSelected,
+          ...linesAfter,
+        ]
+
+        selectionStart = start + lineThatMoved[0].length + 1
+        selectionEnd = end + lineThatMoved[0].length + 1
+
+        this.value = newLines.join('\n')
+      }
+
+      if (event.key === 'ArrowUp') {
+        if (startLineNum === 1) return
+
+        const linesBefore = lines.slice(0, startLineNum - 2)
+        const linesSelected = lines.slice(startLineNum - 1, endLineNum)
+        const lineThatMoved = lines.slice(startLineNum - 2, startLineNum - 1)
+        const linesAfter = lines.slice(endLineNum, numLines)
+
+        const newLines = [
+          ...linesBefore,
+          ...linesSelected,
+          ...lineThatMoved,
+          ...linesAfter,
+        ]
+
+        selectionStart = start - lineThatMoved[0].length - 1
+        selectionEnd = end - lineThatMoved[0].length - 1
+
+        this.value = newLines.join('\n')
+      }
+
+      this.selectionStart = selectionStart
+      this.selectionEnd = selectionEnd
+    }
+
+    // New line with correct indentation
+    if (event.key === 'Enter' && start >= spaces.length) {
+      const lineBefore = beforeSelection.split('\n').slice(-1)[0]
+      const prefix = lineBefore.match(/^( +)?((\-|\*) )?/)
+      if (!prefix) return
+      event.preventDefault()
+
+      const indentation = prefix[0]
+      const newBeforeSelection = beforeSelection + '\n' + indentation
+
+      this.value = newBeforeSelection + afterSelection
+      this.selectionStart = newBeforeSelection.length
+      this.selectionEnd = newBeforeSelection.length
+    }
+
+    // Indent and outdent multiple lines
+    if (event.key === 'Tab' && start !== end) {
+      event.preventDefault()
+
+      const lines = selectedText.split('\n')
+
+      const newLines = lines.map(text => {
+        if (!text.length) return text
+        if (event.shiftKey) {
+          if (text.substr(0, spaces.length) !== spaces) return text
+          return text.substr(spaces.length)
+        } else {
+          return spaces + text
+        }
+      })
+
+      const newSelectedText = newLines.join('\n')
+      const lengthDifference = selectedText.length - newSelectedText.length
+
+      this.value = beforeSelection + newSelectedText + afterSelection
+
+      this.selectionStart = start
+      this.selectionEnd = (beforeSelection + newSelectedText).length
+    }
+
+    // Indent and outdent a single line
+    if (event.key === 'Tab' && start === end) {
+      event.preventDefault()
+
+      const indent = !event.shiftKey
+      const lineNum = startLineNum
+      const line = lines[lineNum - 1]
+
+      if (!indent && line.substr(0, spaces.length) !== spaces) return
+
+      const newLine = indent ? spaces + line : line.substr(spaces.length)
+      const newLines = [
+        ...lines.slice(0, lineNum - 1),
+        newLine,
+        ...lines.slice(lineNum, lines.length),
+      ]
+
+      this.value = newLines.join('\n')
+
+      const selectionPos = start + (spaces.length * (indent ? 1 : -1))
+      this.selectionStart = selectionPos
+      this.selectionEnd = selectionPos
+    }
+
+    // Backspace indentation spaces
+    if (event.key === 'Backspace' && start >= spaces.length && start === end) {
+      if (value.substring(start - spaces.length, start) === spaces) {
         event.preventDefault()
-        this.value = this.value.substring(0, start - spaces.length) + this.value.substring(start)
+        this.value = value.substring(0, start - spaces.length) + value.substring(start)
         this.selectionStart = this.selectionEnd = start - spaces.length
       }
     }
+
+    if (value !== this.value) {
+      pushToHistory()
+      update()
+    }
   })
 
-  inputEl.addEventListener("input", update)
+  inputEl.addEventListener('input', () => {
+    pushToHistory()
+    update()
+  })
+
+  pushToHistory()
   update()
 </script>
