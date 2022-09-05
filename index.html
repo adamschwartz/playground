@@ -4,7 +4,6 @@
 <title>Playground · Adam Schwartz</title>
 <meta name="viewport" content="initial-scale=1, width=device-width">
 
-<script src="https://unpkg.com/focus-visible-polyfill"></script>
 <link rel="stylesheet" href="https://ui.components.workers.dev/?
    --font-family=Avenir, sans-serif
   &--color-rgb=29, 30, 60
@@ -124,15 +123,15 @@
     }
   }
 
-  .Playground--starters-button[is-focus-visible] {
-    background-color: rgba(var(--color-rgb), .1);
-  }
-
-  [js-focus-visible-polyfill-available] .Playground--starters-button:focus {
+  .Playground--starters-button:focus {
     outline: none;
   }
 
-  .Playground--starters-button:not([is-focus-visible]) {
+  .Playground--starters-button:focus-visible {
+    background-color: rgba(var(--color-rgb), .1);
+  }
+
+  .Playground--starters-button:not(:focus-visible) {
     --focus-size: 0em;
   }
 
@@ -193,11 +192,11 @@
     box-shadow: 0 0 0 var(--focus-size) var(--focus-color);
   }
 
-  [js-focus-visible-polyfill-available] .Playground--starters-link:focus {
+  .Playground--starters-link:focus {
     outline: none;
   }
 
-  .Playground--starters-link:not([is-focus-visible]) {
+  .Playground--starters-link:not(:focus-visible) {
     --focus-size: 0em;
   }
 
