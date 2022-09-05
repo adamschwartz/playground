@@ -462,6 +462,18 @@
   inputEl.setSelectionRange(end, end)
   inputEl.focus()
 
+  const fullscreenToggle = () => {
+    if (!document.fullscreenElement) {
+      playgroundEl.requestFullscreen()
+    } else {
+      try {
+        if (document.exitFullscreen) {
+          document.exitFullscreen()
+        }
+      } catch (err) {}
+    }
+  }
+
   let lastValue
 
   const pushToHistory = () => {
@@ -502,6 +514,10 @@
   const initIframeClickTracking = iframeEl => {
     iframeEl.contentDocument.body.addEventListener('click', () => {
       if (startersEl.open) startersEl.open = false
+    })
+
+    iframeEl.contentDocument.body.addEventListener('dblclick', () => {
+      fullscreenToggle()
     })
   }
 
