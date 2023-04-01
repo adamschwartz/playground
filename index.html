@@ -127,6 +127,40 @@
     user-select: none;
   }
 
+  .Playground--preview-errors {
+    position: absolute;
+    inset: auto 0 0;
+    font-family: var(--monospace-font-family);
+    font-weight: 500;
+    white-space: pre-wrap;
+    margin: 0;
+    padding: 1em;
+    background: #ffeff0;
+    color: #ff0000;
+  }
+
+  .Playground--preview-errors em {
+    font-weight: 600;
+  }
+
+  html[data-theme="light"] .Playground--preview-errors {
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+
+  html[data-theme="light"] .Playground--preview-errors em {
+    font-style: normal;
+  }
+
+  .Playground--preview-errors div {
+    margin-top: 2em;
+    font-size: .8em;
+  }
+
+  html[data-theme="dark"] .Playground--preview-errors {
+    background: #290000;
+    color: #ff8080;
+  }
+
   .Playground--starters {
     position: absolute;
     top: 0;
@@ -410,6 +444,10 @@
       title: 'Dot',
       value: `${'<'}script src="https://adamschwartz.co/labs/dot/dot.js">${'<'}/script>\n\n<div data-dot style="color: currentColor"></div>\n\n${'<'}script>\n  const SIZE = 50\n\n  const dot = new Dot({\n    node: document.querySelector("[data-dot]"),\n    size: SIZE\n  })\n\n  dot.jumpTo({\n    x: (window.innerWidth - SIZE) / 2,\n    y: (window.innerHeight - SIZE) / 2\n  }, true)\n${'<'}/script>`
     },
+    error: {
+      title: 'Error',
+      value: `${'<'}script>{`,
+    },
     gradient: {
       title: 'Gradient',
       value: '<style>\n  html {\n    background: linear-gradient(\n      to bottom right,\n      blue,\n      red\n    )\n  }\n</style>'
@@ -614,6 +652,8 @@
 
     const sandboxEl = document.createElement('iframe')
     playgroundEl.appendChild(sandboxEl)
+
+    const sandboxWindow = sandboxEl.contentWindow
     const sandboxDocument = sandboxEl.contentDocument
     const head = sandboxEl.contentDocument.head
     const body = sandboxEl.contentDocument.body
@@ -631,6 +671,16 @@
         }
       </style>
     `
+
+    const errorEl = document.createElement('pre')
+    errorEl.className = 'Playground--preview-errors'
+    sandboxWindow.onerror = (msg, url, lineNum, columnNum, error) => {
+      playgroundEl.appendChild(errorEl)
+      const prefixMatch = msg.match(/Uncaught \w+\:/)
+      if (prefixMatch && prefixMatch.length) msg = `<em>${prefixMatch[0]}</em> ${msg.substr(prefixMatch[0].length)}`
+      const html = `${msg}<div>line ${lineNum}, column ${columnNum}, within &lt;script&gt;</div>`
+      errorEl.innerHTML = html
+    }
 
     loadHeadElements(sandboxDocument, head, newHead, () => {
       body.innerHTML = ''
