@@ -414,6 +414,14 @@
       title: 'Gradient',
       value: '<style>\n  html {\n    background: linear-gradient(\n      to bottom right,\n      blue,\n      red\n    )\n  }\n</style>'
     },
+    log: {
+      title: 'Log',
+      value: `<pre id=l style="font:3vw Monaco,monospace">\n${'<'}script>log=(...a)=>{l.prepend(a.join(", ")+"\\n")}\n\nlog('text')`,
+    },
+    navigator: {
+      title: 'Navigator',
+      value: `<pre id=l style="font-family:Monaco;white-space:pre-wrap">\n${'<'}script>log=(...a)=>{l.prepend(a.join(", ")+"\\n")}\n\nconst n = {}\nfor (let i in navigator) n[i] = navigator[i]\n\nlog(JSON.stringify(n, null, 2))`,
+    },
     welcome: {
       title: 'Welcome',
       value: `<style>\n  * { margin: 0 }\n\n  body {\n    font-family: system-ui, sans-serif;\n    display: grid;\n    place-content: center;\n    text-align: center;\n    height: 100%;\n  }\n\n  h1 {\n    font-size: 15vw;\n    font-weight: 900;\n    letter-spacing: -.03em;\n    padding-right: .0625em;\n    padding-bottom: 6.5vh;\n  }\n</style>\n\n<h1 id=h1 data-text=Playground></h1>\n\n${'<'}script>\n  text = h1.getAttribute("data-text")\n  i = setInterval(() => {\n    h1.textContent = text.slice(0, h1.textContent.length + 1)\n    if (h1.textContent === text) clearInterval(i)\n  }, 200)\n${'<'}/script>\n`
