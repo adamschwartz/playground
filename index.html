@@ -443,6 +443,7 @@
       inputEl.value = starters[key].value
       update()
       startersEl.open = false
+      requestAnimationFrame(() => inputEl.focus())
     })
 
     li.appendChild(a)
