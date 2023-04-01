@@ -563,15 +563,16 @@
     if (newHead.length) {
       const el = newHead[0]
 
-      if (el.tagName && el.tagName.toLowerCase() === 'script' && el.getAttribute('src')) {
-        loadScript(doc, el, () => {
-          newHead.shift()
-          loadHeadElements(doc, head, newHead, callback)
-        })
-      } else {
-        head.appendChild(el)
+      const processNextEl = () => {
         newHead.shift()
         loadHeadElements(doc, head, newHead, callback)
+      }
+
+      if (el.tagName && el.tagName.toLowerCase() === 'script' && el.getAttribute('src')) {
+        loadScript(doc, el, processNextEl)
+      } else {
+        head.appendChild(el)
+        processNextEl()
       }
     } else {
       callback()
