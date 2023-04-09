@@ -33,7 +33,7 @@
     --text-size-adjust: 100%;
 
     --font-family: system-ui, sans-serif;
-    --monospace-font-family: Menlo, monospace;
+    --monospace-font-family: Menlo, Monaco, "SF Mono", "Courier New", Courier, monospace;
 
     --color: rgb(var(--color-rgb));
     --background-color: rgb(var(--background-color-rgb));
@@ -454,11 +454,11 @@
     },
     log: {
       title: 'Log',
-      value: `<pre id=l style="font:3vw Monaco,monospace">\n${'<'}script>log=(...a)=>{l.prepend(a.join(", ")+"\\n")}\n\nlog('text')`,
+      value: `<pre id=l style="font:3vw menlo,courier">\n${'<'}script>log=(...a)=>{l.prepend(a.join(", ")+"\\n")}\n\nlog('text')`,
     },
     navigator: {
       title: 'Navigator',
-      value: `<pre id=l style="font-family:Monaco;white-space:pre-wrap">\n${'<'}script>log=(...a)=>{l.prepend(a.join(", ")+"\\n")}\n\nconst n = {}\nfor (let i in navigator) n[i] = navigator[i]\n\nlog(JSON.stringify(n, null, 2))`,
+      value: `<pre id=l style="font:1em menlo,courier;white-space:pre-wrap">\n${'<'}script>log=(...a)=>{l.prepend(a.join(", ")+"\\n")}\n\nconst n = {}\nfor (let i in navigator) n[i] = navigator[i]\n\nlog(JSON.stringify(n, null, 2))`,
     },
     welcome: {
       title: 'Welcome',
@@ -667,6 +667,7 @@
           html {
             background: #000;
             color: #fff;
+            -webkit-font-smoothing: antialiased;
           }
         }
       </style>
