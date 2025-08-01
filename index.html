@@ -452,6 +452,10 @@
       title: 'Gradient',
       value: '<style>\n  html {\n    background: linear-gradient(\n      to bottom right,\n      blue,\n      red\n    )\n  }\n</style>'
     },
+    location: {
+      title: 'Location',
+      value: `<style>*{font:900 8vw sans-serif;letter-spacing:-.04em}</style>\n<div><d>city</d>, <d>regionCode</d>, <d>postalCode</d></div>\n<div><d>latitude</d>, <d>longitude</d></div>\n\n${'<'}script>\nconst url = 'https://web.scraper.workers.dev/?url=request-cf.examples-archived.workers.dev&selector=pre'\n\nfetch(url).then(r => r.json()).then(d => {\n  d = JSON.parse(d.result.pre[0])\n  document.querySelectorAll('d').forEach(el => {\n    el.textContent = d[el.textContent]\n  })\n})\n${'<'}/script>`
+    },
     log: {
       title: 'Log',
       value: `<pre id=l style="font:3vw menlo,courier">\n${'<'}script>log=(...a)=>{l.prepend(a.join(", ")+"\\n")}\n\nlog('text')`,
