@@ -18,7 +18,8 @@
   html {
     --color-rgb: 29, 30, 60;
     --background-color-rgb: 239, 239, 239;
-    --mobile-keyboard-panel-rgb: 248, 248, 248;
+    --virtual-keyboard-rgb: 208, 211, 217;
+    --virtual-key-rgb: 255, 255, 255;
     --accent-color-rgb: 74, 76, 105;
     --shadow-color-rgb: var(--color-rgb);
   }
@@ -26,7 +27,8 @@
   html[data-theme="dark"] {
     --color-rgb: 239, 239, 239;
     --background-color-rgb: 22, 22, 24;
-    --mobile-keyboard-panel-rgb: 45, 45, 47;
+    --virtual-keyboard-rgb: 41, 41, 41;
+    --virtual-key-rgb: 105, 105, 105;
     --shadow-color-rgb: 0, 0, 0;
   }
 
@@ -41,7 +43,8 @@
 
     --color: rgb(var(--color-rgb));
     --background-color: rgb(var(--background-color-rgb));
-    --mobile-keyboard-panel: rgb(var(--mobile-keyboard-panel-rgb));
+    --virtual-keyboard: rgb(var(--virtual-keyboard-rgb));
+    --virtual-key: rgb(var(--virtual-key-rgb));
     --accent-color: rgb(var(--accent-color-rgb));
     --focus-color-rgb: var(--accent-color-rgb);
     --focus-color: rgba(var(--focus-color-rgb), .4);
@@ -80,6 +83,7 @@
     width: 100%;
     margin: 0;
     overflow: hidden;
+    overscroll-behavior: none;
   }
 
   .Playground--editor,
@@ -99,6 +103,7 @@
     padding: 1em;
     background: transparent;
     border: 0;
+    border-radius: 0;
     resize: none;
   }
 
@@ -180,7 +185,7 @@
 
   .Playground--starters-button {
     position: absolute;
-    list-style: none; /* Hide > on safari */
+    list-style: none; /* ::marker on iOS */
     top: 0;
     right: 0;
     height: 1.25em;
@@ -300,6 +305,12 @@
 
     .Playground--editor {
       top: 50%;
+      height: auto;
+      bottom: 0;
+
+      [data-editor-is-focused] & {
+        bottom: 3.25em;
+      }
     }
 
     .Playground--preview {
@@ -323,16 +334,20 @@
       position: fixed;
       display: flex;
       width: 100%;
+      height: 3.25em;
       bottom: 0;
-      /* For debugging */
-      /* bottom: 32.8%; */
       left: 0;
       right: 0;
-      background: var(--mobile-keyboard-panel);
+      background: var(--virtual-keyboard);
       --shadow-opacity: .15;
-      box-shadow: 0 -1px rgba(var(--shadow-color-rgb), var(--shadow-opacity));
+      translate: 0 calc(100% + 1px);
+      transition: translate .1s ease;
 
-      .Playground--mobile-extended-keyboard-inner {
+      [data-editor-is-focused] & {
+        translate: 0 0;
+      }
+
+      & > div {
         display: flex;
         gap: .5em;
         padding: .5em;
@@ -346,19 +361,21 @@
 
       button {
         position: relative;
-        font-size: 2.25em;
         display: inline-block;
+        touch-action: manipulation;
+        font-size: 2.25em;
         width: .8em;
-        min-width: .7em;
+        flex-shrink: 0;
         height: 1em;
         text-align: center;
         font-family: var(--monospace-font-family);
         overflow: hidden;
-        background: var(--background-color);
+        color: inherit;
+        background: var(--virtual-key);
         border: 0;
-        border-radius: .25em;
-        --height-3d: .05em;
-        box-shadow: 0 var(--height-3d) rgba(var(--shadow-color-rgb), .15);
+        border-radius: .125em;
+        --height-3d: .03em;
+        box-shadow: 0 var(--height-3d) rgba(var(--shadow-color-rgb), .3);
         -webkit-tap-highlight-color: transparent;
         tap-highlight-color: transparent;
 
@@ -376,7 +393,7 @@
           text-align: center;
           line-height: 1.2;
           translate: calc(var(--x) * .01em) calc(var(--y) * .01em);
-          scale: calc(.8 * var(--s, 1));
+          scale: calc(.65 * var(--s, 1));
           pointer-events: none;
         }
       }
@@ -400,20 +417,7 @@
 
 <div class="Playground--preview" data-js-playground></div>
 
-<div class="Playground--mobile-extended-keyboard" data-js-extended-keyboard>
-  <div class="Playground--mobile-extended-keyboard-inner">
-    <button><span style="--x:-2;--y:0;"><</span></button>
-    <button><span style="--x:-.5;--y:0;--s:.95">/</span></button>
-    <button><span style="--x:1;--y:0;">></span></button>
-    <button><span style="--x:.5;--y:2;">=</span></button>
-    <button><span style="--x:3;--y:25;">"</span></button>
-    <button><span style="--x:-3;--y:3;--s:.9">{</span></button>
-    <button><span style="--x:.5;--y:0;--s:.9">:</span></button>
-    <button><span style="--x:2;--y:0;--s:.9">;</span></button>
-    <button><span style="--x:1.8;--y:3;--s:.9">}</span></button>
-    <button><span style="--x:0;--y:30;--s:1.05">`</span></button>
-  </div>
-</div>
+<div class="Playground--mobile-extended-keyboard" data-js-extended-keyboard></div>
 
 <script>
   class UndoHistory {
@@ -500,6 +504,8 @@
 </script>
 
 <script>
+  const html = document.documentElement
+
   const spaces = '  '
   const params = new URLSearchParams(location.search)
   const inputEl = document.querySelector('[data-js-input]')
@@ -576,6 +582,11 @@
     }
   }
 
+  const focusInputElDesktopOnly = () => {
+    if (!window.matchMedia('(pointer: fine').matches) return
+    inputEl.focus()
+  }
+
   Object.entries(starters).forEach(([key, starter]) => {
     if (starter.hidden) return
 
@@ -599,7 +610,7 @@
       inputEl.value = starters[key].value
       update()
       startersEl.open = false
-      requestAnimationFrame(() => inputEl.focus())
+      requestAnimationFrame(() => focusInputElDesktopOnly())
     })
 
     li.appendChild(a)
@@ -625,7 +636,7 @@
   // Set caret to the end
   const end = inputEl.value.length
   inputEl.setSelectionRange(end, end)
-  inputEl.focus()
+  focusInputElDesktopOnly()
 
   const fullscreenToggle = () => {
     if (!document.fullscreenElement) {
@@ -994,27 +1005,92 @@
   pushToHistory()
   update()
 
-  extendedKeyboardEl.addEventListener('click', event => {
-    if (event.target.tagName !== 'BUTTON') {
-      event.preventDefault()
-      return inputEl.focus()
+  const setupExtendedKeyboard = () => {
+    const keys = [
+      ['<d/>', '<div>|</div>', 1.15, -19.5, 0, .6],
+      ['s{ }', '<style>\ndiv {\n  |\n}\n</style>', 1.15, -19, 0, .6],
+      ['<', '<|', .8, -2, 0, 1],
+      ['/', '/|', .8, -.5, 0, .95],
+      ['>', '>|', .8, 1, 0, 1],
+      ['{', '{|', .8, -3, 3, .9],
+      ['}', '}|', .8, 1.8, 3, .9],
+      [':', ':|', .8, .5, 0, .9],
+      [';', ';|', .8, 2, 0, .9],
+      ['=', '=|', .8, .5, 2, 1],
+      ['"', '"|', .8, 3, 25, 1],
+      ['*', '*|', .8, 0, 0, .9],
+      ['`', '`|', .8, 0, 30, 1.05],
+    ]
+
+    const div = document.createElement('div')
+
+    keys.forEach((key, index) => {
+      const [displayText, insertText, buttonWidthEms, x, y, scale] = key
+
+      const button = document.createElement('button')
+      button.style.width = `${ buttonWidthEms }em`
+
+      const span = document.createElement('span')
+      span.textContent = displayText
+      span.style.setProperty('--x', x)
+      span.style.setProperty('--y', y)
+      span.style.setProperty('--s', scale)
+
+      button.dataset.index = index
+
+      button.append(span)
+      div.append(button)
+    })
+
+    extendedKeyboardEl.append(div)
+
+
+    extendedKeyboardEl.addEventListener('click', event => {
+      if (event.target.tagName !== 'BUTTON') {
+        event.preventDefault()
+        return inputEl.focus()
+      }
+
+      const value = inputEl.value
+      const start = inputEl.selectionStart
+      const end = inputEl.selectionEnd
+
+      const beforeSelection = value.substr(0, start)
+      const selectedText = value.substr(start, end - start)
+      const afterSelection = value.substr(end)
+
+      const keyIndex = event.target.dataset.index
+      const key = keys[keyIndex]
+      const insertText = key[1]
+
+      const pipeIndex = insertText.indexOf('|')
+      const caretOffset = pipeIndex > -1 ? pipeIndex : insertText.length
+
+      const newValue = beforeSelection + insertText.replace('|', '') + afterSelection
+      const newSelection = beforeSelection.length + caretOffset
+
+      inputEl.value = newValue
+      inputEl.selectionStart = newSelection
+      inputEl.selectionEnd = newSelection
+      inputEl.focus()
+    })
+  }
+
+  setupExtendedKeyboard()
+
+  const editorFocusChange = focused => {
+    if (focused) {
+      html.setAttribute('data-editor-is-focused', '')
+    } else {
+      html.removeAttribute('data-editor-is-focused')
     }
+  }
 
-    const value = inputEl.value
-    const start = inputEl.selectionStart// || inputEl.length
-    const end = inputEl.selectionEnd// || start
+  inputEl.addEventListener('focus', event => {
+    editorFocusChange(true)
+  })
 
-    const beforeSelection = value.substr(0, start)
-    const selectedText = value.substr(start, end - start)
-    const afterSelection = value.substr(end)
-
-    const char = event.target.textContent
-    const newValue = beforeSelection + char + afterSelection
-    const newSelection = beforeSelection.length + 1
-
-    inputEl.value = newValue
-    inputEl.selectionStart = newSelection
-    inputEl.selectionEnd = newSelection
-    inputEl.focus()
+  inputEl.addEventListener('blur', event => {
+    editorFocusChange(false)
   })
 </script>
