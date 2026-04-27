@@ -546,7 +546,11 @@
     },
     dot: {
       title: 'Dot',
-      value: `<style>body{margin:0}</style>\n${'<'}script src="https://adamschwartz.co/labs/dot/dot.js">${'<'}/script>\n\n<div data-dot style="color: currentColor"></div>\n\n${'<'}script>\n  const SIZE = 50\n\n  const dot = new Dot({\n    node: document.querySelector("[data-dot]"),\n    size: SIZE\n  })\n\n  dot.jumpTo({\n    x: (window.innerWidth - SIZE) / 2,\n    y: (window.innerHeight - SIZE) / 2\n  }, true)\n  \n  addEventListener('click', event => {\n    dot.jumpTo({\n      x: event.clientX - SIZE/2,\n      y: event.clientY - SIZE/2\n    }, true)\n  })\n${'<'}/script>`
+      value: `<style>*{margin:0}</style>\n${'<'}script src="https://adamschwartz.co/labs/dot/dot.js">${'<'}/script>\n\n<div data-dot style="color: currentColor"></div>\n\n${'<'}script>\n  const SIZE = 50\n\n  const dot = new Dot({\n    node: document.querySelector("[data-dot]"),\n    size: SIZE\n  })\n\n  dot.jumpTo({\n    x: (window.innerWidth - SIZE) / 2,\n    y: (window.innerHeight - SIZE) / 2\n  }, true)\n  \n  addEventListener('click', event => {\n    dot.jumpTo({\n      x: event.clientX - SIZE/2,\n      y: event.clientY - SIZE/2\n    }, true)\n  })\n${'<'}/script>`
+    },
+    dot2: {
+      title: 'Dots Two',
+      value: `<style>*{margin:0}</style>\n<script src="https://adamschwartz.co/labs/dot/dot.js">${'<'}/script>\n\n<div id=a style="color: DodgerBlue"></div>\n<div id=b style="color: OrangeRed; mix-blend-mode: lighten"></div>\n\n<script>\n  s = 50\n  const dots = {}\n  \n  Array('a','b').forEach(k => {\n    const d = dots[k] = new Dot({ node: window[k], size: s })\n    d.jumpTo({\n      x: (innerWidth - s) / 2,\n      y: (innerHeight - s) / 2\n    }, true)\n  })\n\n  j = 0  \n  addEventListener('click', event => {\n    const o = j++%2 === 0 ? s * 2 : 0\n\n    Array('a','b').forEach(k => {\n      dy = o * (k == 'a' ? -1 : 1)\n      dx = Math.abs(dy) ? Math.random() * s : 0\n      dots[k].jumpTo({\n        x: (event.clientX - s/2) + dx,\n        y: (event.clientY - s/2) + dy\n      }, true)\n    })\n  })\n${'<'}/script>`
     },
     error: {
       title: 'Error',
